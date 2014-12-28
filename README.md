@@ -29,8 +29,9 @@ in 21.36 seconds.`, you're ready to go. Browse to
 **Attention: It is not longer needed to run `lein figwheel`
   separately. This is now taken care of behind the scenes**
 
-## Trying it out
 
+
+## Trying it out
 If all is well you now have a browser window saying 'Hello Chestnut',
 and a REPL prompt that looks like `cljs.user=>`.
 

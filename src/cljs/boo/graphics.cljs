@@ -1,29 +1,31 @@
 (ns boo.graphics
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
-   [cljs.core.async :as async :refer [>! <! put! take! chan alts! timeout]]
-    ))
-   
+   [cljs.core.async :as async :refer [>! <! put! take! chan alts! timeout dropping-buffer]]
+   ))
+
 (def aaa 123)
 
 ;;---- anim stuff -------------------------
 ;; 066 294 7584 / 94  ира
 
-(defonce anim-chan (chan (dropping-buffer 1)))
+(declare game-step)
 
-(defn anim-loop [c t]
-  (if c
+(defonce anim-flag false)
+(defn anim-loop-2 [time]
+  (if anim-flag
     (go
-      (<! (timeout 1000))
-      (>! c t)
-      (.requestAnimationFrame js/window (partial anim-loop c))
-      )))
+      #_(println time)
+      (game-step)
+      #_(<! (timeout 300))
+      (.requestAnimationFrame js/window anim-loop-2))))
 
-(defn anim-start [c]
-  (anim-loop c 0))
+(defn anim-start []
+  (set! anim-flag true)
+  (anim-loop-2 0))
 
 (defn anim-stop []
-  (anim-loop nil 0))
+  (set! anim-flag false))
 
 
 (defn foo [c]
@@ -54,6 +56,14 @@
         h (.-height canvas)]
     (.clearRect cxt 0 0 w h)))
 
+;;---------------------------------------------
 
+(defonce game-state (atom 0))
 
+(defn game-step []
+  (swap! game-state (fn [x] (mod (inc x) 100)))
+  (clean-context)
+  (draw-client @game-state 100 10))
 
+;;-- run -----------------------------------
+(anim-start)
