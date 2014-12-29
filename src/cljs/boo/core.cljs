@@ -27,13 +27,13 @@
        ;; data* (-> data (. js/JSON.parse) (js->clj :keywordize-keys true))
         {cmd :cmd id :id client-list :clients coord :coord} data*
         ]
-   ;; (println  data*) 
+   ;; (println  data*)
       (case cmd
         "init" (do
                  (print "init cmd")
                  (reset! my-id id)
                  (reset! clients client-list))
-        
+
         "move" (do
                  (print "move client :" id " coord" coord )
                  (swap! clients assoc id coord))
@@ -47,15 +47,15 @@
         (print (str "unknown command" cmd))
         )))
 
-(defn create-ws []
-  (let [ws (js/WebSocket.
-            "ws://localhost:10555/ws")]
+(defn create-ws [url]
+  (let [ws (js/WebSocket. url)]
     (doto ws
       (aset "onerror" (fn [error] (print "some error" (.-data error))))
       (aset "onopen" (fn [evt] (print "connection OK")))
       (aset "onmessage" on-message)
       (aset "onclose" (fn [evt] (print "Socket has been closed: " (.-data evt)))))))
 
+(defn create-ws-local [] (create-ws "ws://localhost:10555/ws"))
 
 ;; --- move --- (.stringify js/JSON *1)
 (defn move [ws coord]
